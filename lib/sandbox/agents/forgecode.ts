@@ -75,8 +75,8 @@ export async function executeForgeCodeInSandbox(
     await logger.info('Starting ForgeCode agent execution...')
 
     // Validate API keys (keys come from process.env on the Node.js server)
-    if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) {
-      const errorMsg = 'Anthropic API key or OpenAI API key is required for ForgeCode agent'
+    if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
+      const errorMsg = 'Anthropic API key, OpenAI API key, or Gemini API key is required for ForgeCode agent'
       await logger.error(errorMsg)
       return { success: false, error: errorMsg, cliName: 'forge', changesDetected: false }
     }
