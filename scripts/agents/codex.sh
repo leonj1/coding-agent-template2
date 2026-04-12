@@ -99,9 +99,15 @@ ENV_VARS+=("CI=true")
 [ -n "${OPENAI_API_KEY:-}" ] && ENV_VARS+=("OPENAI_API_KEY=${OPENAI_API_KEY}")
 
 if [ "$RESUMED" = true ]; then
-  # Resume last session
-  log_command "codex resume --last"
-  CMD_ARGS=(resume --last)
+  if [ -n "$SESSION_ID" ]; then
+    # Resume specific session by ID
+    log_command "codex resume --session-id <id>"
+    CMD_ARGS=(resume --session-id "$SESSION_ID")
+  else
+    # Resume last session
+    log_command "codex resume --last"
+    CMD_ARGS=(resume --last)
+  fi
 else
   # New execution
   CMD_ARGS=(exec --dangerously-bypass-approvals-and-sandbox "$INSTRUCTION")
