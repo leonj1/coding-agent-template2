@@ -689,8 +689,8 @@ Key commands: open, snapshot -i, click, fill, type, press, get text/value/title/
 
         let skillInstalled = false
 
-        if (agentType === 'claude') {
-          // Claude: Use .claude/skills directory
+        if (agentType === 'claude' || agentType === 'forgecode') {
+          // Claude/ForgeCode: Use .claude/skills directory
           const skillDir = '/home/vercel-sandbox/.claude/skills/agent-browser'
           const createSkillDir = await runCommandInSandbox(sandbox, 'mkdir', ['-p', skillDir])
           if (createSkillDir.success) {
