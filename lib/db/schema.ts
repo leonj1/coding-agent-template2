@@ -120,7 +120,7 @@ export const insertTaskSchema = z.object({
   prompt: z.string().min(1, 'Prompt is required'),
   title: z.string().optional(),
   repoUrl: z.string().url('Must be a valid URL').optional(),
-  selectedAgent: z.enum(['claude', 'codex', 'copilot', 'cursor', 'gemini', 'opencode']).default('claude'),
+  selectedAgent: z.enum(['claude', 'codex', 'copilot', 'cursor', 'forgecode', 'gemini', 'opencode']).default('claude'),
   selectedModel: z.string().optional(),
   installDependencies: z.boolean().default(false),
   maxDuration: z.number().default(parseInt(process.env.MAX_SANDBOX_DURATION || '300', 10)),
