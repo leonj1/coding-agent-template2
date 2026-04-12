@@ -6,31 +6,29 @@ import { uploadAgentScripts, executeAgentScript } from './script-runner'
 
 type Connector = typeof connectors.$inferSelect
 
-const SCRIPT_NAME = 'opencode.sh'
+const SCRIPT_NAME = 'forgecode.sh'
 
 /**
- * Build the MCP config JSON for OpenCode (~/.opencode/config.json format).
+ * Build the MCP config JSON for ForgeCode (.mcp.json format).
  */
-function buildOpenCodeMcpConfigJson(mcpServers: Connector[]): string | null {
+function buildMcpConfigJson(mcpServers: Connector[]): string | null {
   if (!mcpServers || mcpServers.length === 0) return null
 
-  const opencodeConfig: {
-    $schema: string
-    mcp: Record<
+  const mcpConfig: {
+    mcpServers: Record<
       string,
-      | { type: 'local'; command: string[]; enabled: boolean; environment?: Record<string, string> }
-      | { type: 'remote'; url: string; enabled: boolean; headers?: Record<string, string> }
+      | { command: string; args?: string[]; env?: Record<string, string> }
+      | { url: string; headers?: Record<string, string> }
     >
-  } = {
-    $schema: 'https://opencode.ai/config.json',
-    mcp: {},
-  }
+  } = { mcpServers: {} }
 
   for (const server of mcpServers) {
     const serverName = server.name.toLowerCase().replace(/[^a-z0-9]/g, '-')
 
     if (server.type === 'local') {
       const commandParts = server.command!.trim().split(/\s+/)
+      const executable = commandParts[0]
+      const args = commandParts.slice(1)
 
       let envObject: Record<string, string> | undefined
       if (server.env) {
@@ -41,32 +39,30 @@ function buildOpenCodeMcpConfigJson(mcpServers: Connector[]): string | null {
         }
       }
 
-      opencodeConfig.mcp[serverName] = {
-        type: 'local',
-        command: commandParts,
-        enabled: true,
-        ...(envObject ? { environment: envObject } : {}),
+      const localServer: { command: string; args?: string[]; env?: Record<string, string> } = {
+        command: executable,
       }
-    } else {
-      const entry: { type: 'remote'; url: string; enabled: boolean; headers?: Record<string, string> } = {
-        type: 'remote',
-        url: server.baseUrl!,
-        enabled: true,
-      }
+      if (args.length > 0) localServer.args = args
+      if (envObject) localServer.env = envObject
 
+      mcpConfig.mcpServers[serverName] = localServer
+    } else {
+      const remoteServer: { url: string; headers?: Record<string, string> } = {
+        url: server.baseUrl!,
+      }
       const headers: Record<string, string> = {}
       if (server.oauthClientSecret) headers.Authorization = `Bearer ${server.oauthClientSecret}`
       if (server.oauthClientId) headers['X-Client-ID'] = server.oauthClientId
-      if (Object.keys(headers).length > 0) entry.headers = headers
+      if (Object.keys(headers).length > 0) remoteServer.headers = headers
 
-      opencodeConfig.mcp[serverName] = entry
+      mcpConfig.mcpServers[serverName] = remoteServer
     }
   }
 
-  return JSON.stringify(opencodeConfig, null, 2)
+  return JSON.stringify(mcpConfig, null, 2)
 }
 
-export async function executeOpenCodeInSandbox(
+export async function executeForgeCodeInSandbox(
   sandbox: Sandbox,
   instruction: string,
   logger: TaskLogger,
@@ -76,20 +72,20 @@ export async function executeOpenCodeInSandbox(
   sessionId?: string,
 ): Promise<AgentExecutionResult> {
   try {
-    await logger.info('Starting OpenCode agent execution...')
+    await logger.info('Starting ForgeCode agent execution...')
 
-    // Validate API keys
-    if (!process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
-      const errorMsg = 'OpenAI API key or Anthropic API key is required for OpenCode agent'
+    // Validate API keys (keys come from process.env on the Node.js server)
+    if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) {
+      const errorMsg = 'Anthropic API key or OpenAI API key is required for ForgeCode agent'
       await logger.error(errorMsg)
-      return { success: false, error: errorMsg, cliName: 'opencode', changesDetected: false }
+      return { success: false, error: errorMsg, cliName: 'forge', changesDetected: false }
     }
 
     // Upload scripts to sandbox
     await logger.info('Uploading agent scripts...')
     const uploaded = await uploadAgentScripts(sandbox, SCRIPT_NAME, logger)
     if (!uploaded) {
-      return { success: false, error: 'Failed to upload agent scripts', cliName: 'opencode', changesDetected: false }
+      return { success: false, error: 'Failed to upload agent scripts', cliName: 'forge', changesDetected: false }
     }
 
     // Build script arguments
@@ -99,7 +95,7 @@ export async function executeOpenCodeInSandbox(
     else if (isResumed) args.push('--resumed')
 
     // Build MCP config
-    const mcpConfigJson = buildOpenCodeMcpConfigJson(mcpServers || [])
+    const mcpConfigJson = buildMcpConfigJson(mcpServers || [])
     if (mcpConfigJson) {
       args.push('--mcp-config-json', mcpConfigJson)
       await logger.info('Configuring MCP servers')
@@ -107,45 +103,45 @@ export async function executeOpenCodeInSandbox(
 
     // Build environment variables
     const envVars: Record<string, string> = {}
-    if (process.env.OPENAI_API_KEY) envVars.OPENAI_API_KEY = process.env.OPENAI_API_KEY
     if (process.env.ANTHROPIC_API_KEY) envVars.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+    if (process.env.OPENAI_API_KEY) envVars.OPENAI_API_KEY = process.env.OPENAI_API_KEY
     if (process.env.GEMINI_API_KEY) envVars.GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
     // Execute the script
-    await logger.info('Executing OpenCode run command in non-interactive mode...')
+    await logger.info('Executing ForgeCode in non-interactive mode...')
     const result = await executeAgentScript(sandbox, SCRIPT_NAME, args, envVars, logger)
 
     // Map ScriptResult to AgentExecutionResult
     if (result.exitCode === 0) {
       const successMsg = result.hasChanges
-        ? 'OpenCode executed successfully (Changes detected)'
-        : 'OpenCode executed successfully (No changes made)'
+        ? 'ForgeCode executed successfully (Changes detected)'
+        : 'ForgeCode executed successfully (No changes made)'
       await logger.success(successMsg)
 
       return {
         success: true,
         output: successMsg,
-        agentResponse: result.agentOutput || 'OpenCode completed the task',
-        cliName: 'opencode',
+        agentResponse: result.agentOutput || 'ForgeCode completed the task',
+        cliName: 'forge',
         changesDetected: result.hasChanges,
         sessionId: result.sessionId || undefined,
       }
     } else {
-      await logger.error('OpenCode execution failed')
+      await logger.error('ForgeCode execution failed')
       return {
         success: false,
-        error: result.agentOutput || 'OpenCode execution failed',
+        error: result.agentOutput || 'ForgeCode execution failed',
         agentResponse: result.rawStdout,
-        cliName: 'opencode',
+        cliName: 'forge',
         changesDetected: result.hasChanges,
         sessionId: result.sessionId || undefined,
       }
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to execute OpenCode in sandbox'
-    console.error('OpenCode execution error:', error)
-    await logger.error('OpenCode execution failed unexpectedly')
+    const errorMessage = error instanceof Error ? error.message : 'Failed to execute ForgeCode in sandbox'
+    console.error('ForgeCode execution error:', error)
+    await logger.error('ForgeCode execution failed unexpectedly')
 
-    return { success: false, error: errorMessage, cliName: 'opencode', changesDetected: false }
+    return { success: false, error: errorMessage, cliName: 'forge', changesDetected: false }
   }
 }

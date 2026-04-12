@@ -7,7 +7,7 @@ import { AlertCircle, Plus, Trash2, GitBranch, Loader2, Search, X } from 'lucide
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/logos'
+import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode, ForgeCode } from '@/components/logos'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,6 +72,15 @@ const AGENT_MODELS = {
     { value: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
     { value: 'claude-opus-4-5', label: 'Opus 4.5' },
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
+  ],
+  forgecode: [
+    { value: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
+    { value: 'claude-opus-4-5', label: 'Opus 4.5' },
+    { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
+    { value: 'gpt-5', label: 'GPT-5' },
+    { value: 'gpt-5-mini', label: 'GPT-5 mini' },
+    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
   ],
 } as const
 
@@ -362,6 +371,8 @@ export function TaskSidebar({ tasks, width = 288 }: TaskSidebarProps) {
         return Gemini
       case 'opencode':
         return OpenCode
+      case 'forgecode':
+        return ForgeCode
       default:
         return null
     }
