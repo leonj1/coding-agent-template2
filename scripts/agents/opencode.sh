@@ -18,10 +18,34 @@ RESUMED=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --instruction) INSTRUCTION="$2"; shift 2 ;;
-    --model) MODEL="$2"; shift 2 ;;
-    --session-id) SESSION_ID="$2"; shift 2 ;;
-    --mcp-config-json) MCP_CONFIG_JSON="$2"; shift 2 ;;
+    --instruction)
+      if [[ $# -lt 2 ]] || [[ "${2:-}" == --* ]]; then
+        log_error "--instruction requires a value"
+        emit_result 1 false "" "Missing value for --instruction"
+        exit 1
+      fi
+      INSTRUCTION="$2"; shift 2 ;;
+    --model)
+      if [[ $# -lt 2 ]] || [[ "${2:-}" == --* ]]; then
+        log_error "--model requires a value"
+        emit_result 1 false "" "Missing value for --model"
+        exit 1
+      fi
+      MODEL="$2"; shift 2 ;;
+    --session-id)
+      if [[ $# -lt 2 ]] || [[ "${2:-}" == --* ]]; then
+        log_error "--session-id requires a value"
+        emit_result 1 false "" "Missing value for --session-id"
+        exit 1
+      fi
+      SESSION_ID="$2"; shift 2 ;;
+    --mcp-config-json)
+      if [[ $# -lt 2 ]] || [[ "${2:-}" == --* ]]; then
+        log_error "--mcp-config-json requires a value"
+        emit_result 1 false "" "Missing value for --mcp-config-json"
+        exit 1
+      fi
+      MCP_CONFIG_JSON="$2"; shift 2 ;;
     --resumed) RESUMED=true; shift ;;
     *) log_error "Unknown argument: $1"; exit 1 ;;
   esac
