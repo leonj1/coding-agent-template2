@@ -116,7 +116,7 @@ export async function executeAgentScript(
 
   // Fallback if no result line found
   return {
-    exitCode: result.exitCode || -1,
+    exitCode: result.exitCode ?? -1,
     hasChanges: false,
     sessionId: '',
     agentOutput: stdout,
