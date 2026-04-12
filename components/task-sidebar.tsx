@@ -74,8 +74,8 @@ const AGENT_MODELS = {
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
   ],
   forgecode: [
-    { value: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
-    { value: 'claude-opus-4-5', label: 'Opus 4.5' },
+    { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+    { value: 'claude-opus-4-6', label: 'Opus 4.6' },
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
     { value: 'gpt-5', label: 'GPT-5' },
     { value: 'gpt-5-mini', label: 'GPT-5 mini' },

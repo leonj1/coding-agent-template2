@@ -161,8 +161,8 @@ const AGENT_MODELS = {
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
   ],
   forgecode: [
-    { value: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
-    { value: 'claude-opus-4-5', label: 'Opus 4.5' },
+    { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+    { value: 'claude-opus-4-6', label: 'Opus 4.6' },
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
     { value: 'gpt-5', label: 'GPT-5' },
     { value: 'gpt-5-mini', label: 'GPT-5 mini' },
@@ -178,7 +178,7 @@ const DEFAULT_MODELS = {
   cursor: 'auto',
   gemini: 'gemini-3-pro-preview',
   opencode: 'gpt-5',
-  forgecode: 'claude-sonnet-4-5',
+  forgecode: 'claude-sonnet-4-6',
 } as const
 
 export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps) {
@@ -745,8 +745,8 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
     ],
     forgecode: [
-      { value: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
-      { value: 'claude-opus-4-5', label: 'Opus 4.5' },
+      { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+      { value: 'claude-opus-4-6', label: 'Opus 4.6' },
       { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
       { value: 'gpt-5', label: 'GPT-5' },
       { value: 'gpt-5-mini', label: 'GPT-5 mini' },
