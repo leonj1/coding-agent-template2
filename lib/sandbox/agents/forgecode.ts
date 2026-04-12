@@ -26,7 +26,10 @@ function buildMcpConfigJson(mcpServers: Connector[]): string | null {
     const serverName = server.name.toLowerCase().replace(/[^a-z0-9]/g, '-')
 
     if (server.type === 'local') {
-      const commandParts = server.command!.trim().split(/\s+/)
+      if (!server.command) {
+        continue // Skip connector with missing command
+      }
+      const commandParts = server.command.trim().split(/\s+/)
       const executable = commandParts[0]
       const args = commandParts.slice(1)
 
@@ -47,8 +50,11 @@ function buildMcpConfigJson(mcpServers: Connector[]): string | null {
 
       mcpConfig.mcpServers[serverName] = localServer
     } else {
+      if (!server.baseUrl) {
+        continue // Skip connector with missing baseUrl
+      }
       const remoteServer: { url: string; headers?: Record<string, string> } = {
-        url: server.baseUrl!,
+        url: server.baseUrl,
       }
       const headers: Record<string, string> = {}
       if (server.oauthClientSecret) headers.Authorization = `Bearer ${server.oauthClientSecret}`
