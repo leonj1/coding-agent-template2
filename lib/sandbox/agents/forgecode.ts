@@ -9,6 +9,42 @@ type Connector = typeof connectors.$inferSelect
 const SCRIPT_NAME = 'forgecode.sh'
 
 /**
+ * Tokenize a shell command string, respecting single and double quotes.
+ * Returns an array of tokens with quotes stripped.
+ */
+function shellTokenize(cmd: string): string[] {
+  const tokens: string[] = []
+  let current = ''
+  let inSingle = false
+  let inDouble = false
+
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = cmd[i]
+
+    if (ch === "'" && !inDouble) {
+      inSingle = !inSingle
+    } else if (ch === '"' && !inSingle) {
+      inDouble = !inDouble
+    } else if (ch === '\\' && inDouble && i + 1 < cmd.length) {
+      current += cmd[++i]
+    } else if (/\s/.test(ch) && !inSingle && !inDouble) {
+      if (current.length > 0) {
+        tokens.push(current)
+        current = ''
+      }
+    } else {
+      current += ch
+    }
+  }
+
+  if (current.length > 0) {
+    tokens.push(current)
+  }
+
+  return tokens
+}
+
+/**
  * Build the MCP config JSON for ForgeCode (.mcp.json format).
  */
 function buildMcpConfigJson(mcpServers: Connector[]): string | null {
@@ -29,7 +65,7 @@ function buildMcpConfigJson(mcpServers: Connector[]): string | null {
       if (!server.command) {
         continue // Skip connector with missing command
       }
-      const commandParts = server.command.trim().split(/\s+/)
+      const commandParts = shellTokenize(server.command.trim())
       const executable = commandParts[0]
       const args = commandParts.slice(1)
 
