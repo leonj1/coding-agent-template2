@@ -18,10 +18,18 @@ RESUMED=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --instruction) INSTRUCTION="$2"; shift 2 ;;
-    --model) MODEL="$2"; shift 2 ;;
-    --session-id) SESSION_ID="$2"; shift 2 ;;
-    --mcp-config-json) MCP_CONFIG_JSON="$2"; shift 2 ;;
+    --instruction)
+      [[ $# -lt 2 ]] && { log_error "--instruction requires a value"; exit 1; }
+      INSTRUCTION="$2"; shift 2 ;;
+    --model)
+      [[ $# -lt 2 ]] && { log_error "--model requires a value"; exit 1; }
+      MODEL="$2"; shift 2 ;;
+    --session-id)
+      [[ $# -lt 2 ]] && { log_error "--session-id requires a value"; exit 1; }
+      SESSION_ID="$2"; shift 2 ;;
+    --mcp-config-json)
+      [[ $# -lt 2 ]] && { log_error "--mcp-config-json requires a value"; exit 1; }
+      MCP_CONFIG_JSON="$2"; shift 2 ;;
     --resumed) RESUMED=true; shift ;;
     *) log_error "Unknown argument: $1"; exit 1 ;;
   esac
