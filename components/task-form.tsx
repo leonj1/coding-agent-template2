@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Loader2, ArrowUp, Settings, X, Cable, Users, Globe } from 'lucide-react'
-import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/logos'
+import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode, ForgeCode } from '@/components/logos'
 import { setInstallDependencies, setMaxDuration, setKeepAlive, setEnableBrowser } from '@/lib/utils/cookies'
 import { useConnectors } from '@/components/connectors-provider'
 import { ConnectorDialog } from '@/components/connectors/manage-connectors'
@@ -67,6 +67,7 @@ const CODING_AGENTS = [
   { value: 'cursor', label: 'Cursor', icon: Cursor, isLogo: true },
   { value: 'gemini', label: 'Gemini', icon: Gemini, isLogo: true },
   { value: 'opencode', label: 'opencode', icon: OpenCode, isLogo: true },
+  { value: 'forgecode', label: 'ForgeCode', icon: ForgeCode, isLogo: true },
 ] as const
 
 // Model options for each agent
@@ -118,6 +119,15 @@ const AGENT_MODELS = {
     { value: 'claude-opus-4-5', label: 'Opus 4.5' },
     { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
   ],
+  forgecode: [
+    { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+    { value: 'claude-opus-4-6', label: 'Opus 4.6' },
+    { value: 'claude-haiku-4-5', label: 'Haiku 4.5' },
+    { value: 'gpt-5', label: 'GPT-5' },
+    { value: 'gpt-5-mini', label: 'GPT-5 mini' },
+    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+  ],
 } as const
 
 // Default models for each agent
@@ -128,6 +138,7 @@ const DEFAULT_MODELS = {
   cursor: 'auto',
   gemini: 'gemini-3-pro-preview',
   opencode: 'gpt-5',
+  forgecode: 'claude-sonnet-4-6',
 } as const
 
 // API key requirements for each agent
@@ -138,6 +149,7 @@ const AGENT_API_KEY_REQUIREMENTS: Record<string, Provider[]> = {
   cursor: ['cursor'],
   gemini: ['gemini'],
   opencode: [], // Will be determined dynamically based on selected model
+  forgecode: [], // Will be determined dynamically based on selected model
 }
 
 type Provider = 'openai' | 'gemini' | 'cursor' | 'anthropic' | 'aigateway'

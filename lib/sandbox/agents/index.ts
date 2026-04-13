@@ -5,11 +5,12 @@ import { executeCodexInSandbox } from './codex'
 import { executeCopilotInSandbox } from './copilot'
 import { executeCursorInSandbox } from './cursor'
 import { executeGeminiInSandbox } from './gemini'
+import { executeForgeCodeInSandbox } from './forgecode'
 import { executeOpenCodeInSandbox } from './opencode'
 import { TaskLogger } from '@/lib/utils/task-logger'
 import { Connector } from '@/lib/db/schema'
 
-export type AgentType = 'claude' | 'codex' | 'copilot' | 'cursor' | 'gemini' | 'opencode'
+export type AgentType = 'claude' | 'codex' | 'copilot' | 'cursor' | 'forgecode' | 'gemini' | 'opencode'
 
 // Re-export types
 export type { AgentExecutionResult } from '../types'
@@ -126,6 +127,17 @@ export async function executeAgentInSandbox(
 
       case 'gemini':
         return await executeGeminiInSandbox(sandbox, instruction, logger, selectedModel, mcpServers)
+
+      case 'forgecode':
+        return await executeForgeCodeInSandbox(
+          sandbox,
+          instruction,
+          logger,
+          selectedModel,
+          mcpServers,
+          isResumed,
+          sessionId,
+        )
 
       case 'opencode':
         return await executeOpenCodeInSandbox(
